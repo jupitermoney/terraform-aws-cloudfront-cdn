@@ -45,10 +45,10 @@ resource "aws_cloudfront_distribution" "default" {
   price_class         = var.price_class
 
   dynamic "logging_config" {
-    for_each = toset(module.logs.*.bucket_domain_name)
+    for_each = var.enable_logs ? [1] : []
     content {
       include_cookies = var.log_include_cookies
-      bucket          = logging_config.value
+      bucket          = module.logs.bucket_domain_name
       prefix          = var.log_prefix
     }
   }
