@@ -32,6 +32,11 @@ variable "enabled" {
   description = "Set to false to prevent the module from creating any resources"
 }
 
+variable "enable_logs" {
+  default     = "true"
+  description = "Set to false to prevent the module from creating any resources"
+}
+
 variable "dns_aliases_enabled" {
   default     = "true"
   description = "Set to false to prevent dns records for aliases from being created"

@@ -13,7 +13,7 @@ resource "aws_cloudfront_origin_access_identity" "default" {
 }
 
 module "logs" {
-  source                   = "git::https://github.com/cloudposse/terraform-aws-s3-log-storage.git?ref=tags/0.5.0"
+  source                   = "git::https://github.com/rverma-jm/terraform-aws-s3-log-storage.git?ref=patch-1"
   namespace                = var.namespace
   stage                    = var.stage
   name                     = var.name
@@ -24,6 +24,7 @@ module "logs" {
   standard_transition_days = var.log_standard_transition_days
   glacier_transition_days  = var.log_glacier_transition_days
   expiration_days          = var.log_expiration_days
+  enabled                  = var.enable_logs
 }
 
 module "distribution_label" {
@@ -43,10 +44,13 @@ resource "aws_cloudfront_distribution" "default" {
   default_root_object = var.default_root_object
   price_class         = var.price_class
 
-  logging_config {
-    include_cookies = var.log_include_cookies
-    bucket          = module.logs.bucket_domain_name
-    prefix          = var.log_prefix
+  dynamic "logging_config" {
+    for_each = toset(module.logs.*.bucket_domain_name)
+    content {
+      include_cookies = var.log_include_cookies
+      bucket          = logging_config.value
+      prefix          = var.log_prefix
+    }
   }
 
   aliases = var.aliases
